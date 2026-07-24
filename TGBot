@@ -9,8 +9,7 @@ URL="https://openrouter.ai/api/v1/chat/completions"
 API_KEY=""
 MODEL = "openrouter/free"
 
-system_prompt="Ты дружелюбный и уважающий людей помощник. Отвечай кратко и по делу."
-user_histories={}
+system_prompt="Ты дружелюбный и уважающий людей помощник помогающий им описать животного любого по их запросу.Отвечай кратко и по делу."
 
 chat_history={}
 state={}
@@ -68,8 +67,6 @@ def reset_dialog(peer_id):
     chat_history.pop(peer_id,None)
     state.pop(peer_id,None)
 
-print("Бот запущен. Ожидаю сообщениия...")
-
 async def send_long_message(update: Update, text: str)->None:
     if not text:
         return
@@ -83,7 +80,6 @@ async def start_command(update:Update, context:ContextTypes.DEFAULT_TYPE)->None:
         "Привет я твой напарник. Расскажи о каком животном ты хотел бы узнать."
     )
     reset_dialog(update.effective_chat.id)
-
 
 async def reset_command(update:Update, context:ContextTypes.DEFAULT_TYPE)-> None:
     reset_dialog(update.effective_chat.id)
@@ -106,15 +102,14 @@ async def handle_message(update:Update,context:ContextTypes.DEFAULT_TYPE)->None:
     await send_long_message(update,ai_response)
 
 def main()->None:
-    application=Application.builder().token().BUILD()
+    application=Application.builder().token(TG_TOKEN).build()
 
-    application.add_handler(CommandHandler[DEFAULT_TYPE, Any]("start", start_command))
-    application.add_handler(CommandHandler[DEFAULT_TYPE, Any]("reset",  reset_command))
-    application.add_handler(MessageHandler[DEFAULT_TYPE, Any](filters.TEXT & filters.COMMAND, handle_message))
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CommandHandler("reset", reset_command))
+    application.add_handler(MessageHandler(filters.TEXT & filters.COMMAND, handle_message))
 
     print("Бот запущен. Ожидаю сообщения...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
-
-if__name__=="__main__":
-    main(
+if __name__=="__main__":
+    main()
